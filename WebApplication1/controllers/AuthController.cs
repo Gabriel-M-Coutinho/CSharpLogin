@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -10,7 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using WebApplication1.Data;
+using WebApplication1.dtos;
 using WebApplication1.models;
+using DbContext = WebApplication1.Data.AppDbContext;
 
 namespace WebApplication1.Controllers;
 
@@ -18,11 +21,11 @@ namespace WebApplication1.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly UserDbContext _context;
+    private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
 
     public AuthController(
-        UserDbContext context,
+        DbContext context,
         IConfiguration configuration)
     {
         _context = context;
@@ -30,17 +33,17 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterModel model)
+    public async Task<IActionResult> Register(UserDTO model)
     {
         if (await _context.Users.AnyAsync(u => u.Email == model.Email))
         {
             return BadRequest(new { message = "Email já está em uso" });
         }
 
-        // Gerar hash da senha
+ 
         var passwordHash = HashPassword(model.Password);
 
-        // Criar usuário (sem verificação de email por enquanto)
+
         var user = new User()
         {
             Email = model.Email,
@@ -55,7 +58,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginModel model)
+    public async Task<IActionResult> Login(UserDTO model)
     {
         var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == model.Email);
         
@@ -71,7 +74,7 @@ public class AuthController : ControllerBase
     }
 
     // Método para gerar token JWT com apenas o ID do usuário
-    private string GenerateJwtToken(int userId)
+    private string GenerateJwtToken(long userId)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -109,14 +112,3 @@ public class AuthController : ControllerBase
 }
 
 
-public class RegisterModel
-{
-    public string Email { get; set; }
-    public string Password { get; set; }
-}
-
-public class LoginModel
-{
-    public string Email { get; set; }
-    public string Password { get; set; }
-}

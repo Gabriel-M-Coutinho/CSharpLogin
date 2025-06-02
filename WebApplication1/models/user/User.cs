@@ -5,7 +5,7 @@ namespace WebApplication1.models;
 public class User
 {
     [Key]
-    public int id { get; set; }
+    public long id { get; set; }
 
     public string Email { get; set; }
 

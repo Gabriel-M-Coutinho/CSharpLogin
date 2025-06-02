@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApplication1.Data;
+using WebApplication1.services.steam;
+using DbContext = WebApplication1.Data.AppDbContext;
 
 namespace WebApplication1
 {
@@ -21,10 +23,14 @@ namespace WebApplication1
             builder.Services.AddSwaggerGen();
 
 
-            builder.Services.AddDbContext<UserDbContext>(options =>
+            builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("UserConnection")));
             
+
+
+            builder.Services.AddScoped<SteamGameService>();
             
+            builder.Services.AddHttpClient(); // Aqui você registra o HttpClient
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -45,7 +51,7 @@ namespace WebApplication1
 
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
                 dbContext.Database.EnsureDeleted(); 
                 dbContext.Database.EnsureCreated();
             }

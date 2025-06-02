@@ -6,11 +6,11 @@ namespace WebApplication1.services;
 
 public class UserService
 {
-    private readonly UserDbContext _userDbContext;
+    private readonly AppDbContext _dbContext;
     
-    public UserService(UserDbContext context)
+    public UserService(AppDbContext context)
     {
-        _userDbContext = context;
+        _dbContext = context;
     }
     
     /*public async Task<User> CreateUserAsync(UserDTO dto)
