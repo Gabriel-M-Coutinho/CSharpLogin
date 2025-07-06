@@ -1,4 +1,4 @@
-using WebApplication1.Data;
+
 using WebApplication1.dtos;
 using WebApplication1.models;
 
@@ -6,14 +6,14 @@ namespace WebApplication1.services;
 
 public class UserService
 {
-    private readonly AppDbContext _dbContext;
-    
+    /*private readonly AppDbContext _dbContext;
+
     public UserService(AppDbContext context)
     {
         _dbContext = context;
     }
-    
-    /*public async Task<User> CreateUserAsync(UserDTO dto)
+
+    public async Task<User> CreateUserAsync(UserDTO dto)
     {
         var user = new User
         {
