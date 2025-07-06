@@ -1,77 +1,56 @@
-    using System.ComponentModel.DataAnnotations;
-    using WebApplication1.models.dailyguess;
-    using WebApplication1.models.dailyguess.steam;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
+using System.Collections.Generic;
 
-    namespace WebApplication1.models;
-
-    public class SteamGame
-    {    
-        [Key]
-        public int Id { get; set; }
-
-        public string? Name { get; set; }
-        public Dificulty Dificulty { get; set; }
-        
-        public List<GamePublisher> Publishers { get; set; } = new();
-        public List<GameDeveloper> Developer { get; set; } = new();
-        
-        public int MetacriticScore { get; set; }
-        
-        public int Recomendations { get; set; }
-
-        public List<GameGenre> Genres { get; set; }= new();
-
-        public List<GameCategory> Categories { get; set; } = new();
-
-        public DateTime ReleaseDate { get; set; }
-        
-        public DateTime CreatedAt { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
-
-        public DateTime? DeletedAt { get; set; }
-
-        public SteamGame()
-        {
-            CreatedAt = DateTime.Now;
-        }
-
-        public SteamGame(string? name, Dificulty dificulty, List<GamePublisher> publishers, List<GameDeveloper> developer, int metacriticScore, int recomendations, List<GameGenre> genres, List<GameCategory> categories, DateTime releaseDate)
-        {
-            Name = name;
-            Dificulty = dificulty;
-            Publishers = publishers;
-            Developer = developer;
-            MetacriticScore = metacriticScore;
-            Recomendations = recomendations;
-            Genres = genres;
-            Categories = categories;
-            ReleaseDate = releaseDate;
-            CreatedAt = DateTime.Now;
-        }
-
-        public void AddPublisher(GamePublisher publisher)
-        {
-            Publishers.Add(publisher);
-        }
-
-        public void AddGenre(GameGenre genre)
-        {
-            Genres.Add(genre);
-        }
-        
-        public void addDeveloper(GameDeveloper developer)
-        {
-            Developer.Add(developer);
-        }
-
-        public void addCategory(GameCategory category)
-        {
-            Categories.Add(category);
-        }
-
-        public void addGenre(GameGenre genre)
-        {
-            Genres.Add(genre);
-        }
-    }
+[BsonIgnoreExtraElements]
+public class SteamGame
+{
+    [BsonId]
+    [BsonRepresentation(BsonType.Int32)]
+    public int SteamAppId { get; set; }
+    
+    public string Name { get; set; }
+    public string Type { get; set; }
+    public string ShortDescription { get; set; }
+    public string DetailedDescription { get; set; }
+    
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime ReleaseDate { get; set; }
+    
+    public List<string> Developers { get; set; } = new();
+    public List<string> Publishers { get; set; } = new();
+    public List<string> Genres { get; set; } = new();
+    public List<string> Categories { get; set; } = new();
+    
+    // Preço simplificado
+    public string Price { get; set; } // Formato: "R$ 16,49"
+    public decimal PriceValue { get; set; } // Valor numérico para cálculos
+    public int DiscountPercent { get; set; }
+    
+    // Requisitos como strings HTML (ou pode limpar as tags se preferir)
+    public string PcRequirements { get; set; }
+    public string MacRequirements { get; set; }
+    public string LinuxRequirements { get; set; }
+    
+    // Screenshots - apenas URLs
+    public List<string> Screenshots { get; set; } = new();
+    
+    // Filmes - apenas URLs dos thumbnails
+    public List<string> Movies { get; set; } = new();
+    
+    public int Recommendations { get; set; }
+    
+    // Metacritic simplificado
+    public int? MetacriticScore { get; set; }
+    public string MetacriticUrl { get; set; }
+    
+    public string HeaderImage { get; set; }
+    public string Website { get; set; }
+    
+    // Campos úteis para busca/filtro
+    public bool IsFree { get; set; }
+    public bool OnWindows { get; set; }
+    public bool OnMac { get; set; }
+    public bool OnLinux { get; set; }
+}

@@ -17,22 +17,8 @@ public class SteamDailyController: ControllerBase
     }
 
 
-    [HttpPost("/games")]
-    public async Task<IActionResult> GetSteamAppIdsAsync()
-    {
-        try
-        {
 
-            var appIds = await _steamGameService.GetSteamAppIdsAsync();
-
-
-            return Ok(appIds);
-        }
-        catch (Exception ex)
-        {
-
-            return StatusCode(500, ex.Message);
-        }
-    }
+    
+ 
 
 }

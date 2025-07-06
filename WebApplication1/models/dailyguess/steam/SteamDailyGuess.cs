@@ -4,9 +4,11 @@ using WebApplication1.models.dailyguess;
 
 namespace WebApplication1.models;
 
-[Table("steam_daily_guess")] 
+
 public class SteamDailyGuess
 {
+    
+    /*
     [Key]
     public long Id {get; set;}
     public int GameId {get;set;}
@@ -28,5 +30,5 @@ public class SteamDailyGuess
     {
         
     }
-    
+    */
 }

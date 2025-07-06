@@ -1,10 +1,9 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using WebApplication1.Data;
+using MongoDB.Driver;
+using WebApplication1.services;
 using WebApplication1.services.steam;
-using DbContext = WebApplication1.Data.AppDbContext;
 
 namespace WebApplication1
 {
@@ -14,24 +13,10 @@ namespace WebApplication1
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Adicionando os serviços para MVC
+            // 🔧 Configuração de serviços
             builder.Services.AddControllers();
-            builder.Services.AddAuthorization();
 
-            // Configuração do Swagger/OpenAPI
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("UserConnection")));
-            
-
-
-            builder.Services.AddScoped<SteamGameService>();
-            
-            builder.Services.AddHttpClient(); // Aqui você registra o HttpClient
-
+            // 🔐 Configuração JWT
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -43,38 +28,58 @@ namespace WebApplication1
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+                        )
                     };
                 });
 
+            builder.Services.AddAuthorization();
+
+            // 🍃 Configuração do MongoDB
+            builder.Services.AddSingleton<IMongoClient>(serviceProvider => 
+            {
+                var connectionString = builder.Configuration.GetConnectionString("MongoDB") 
+                                    ?? "mongodb://localhost:27017";
+                return new MongoClient(connectionString);
+            });
+
+            // Registro do banco de dados MongoDB
+            builder.Services.AddScoped<IMongoDatabase>(serviceProvider =>
+            {
+                var client = serviceProvider.GetRequiredService<IMongoClient>();
+                return client.GetDatabase(builder.Configuration["MongoDB:DatabaseName"] 
+                       ?? "steam_games_db");
+            });
+
+            // 💼 Registro dos serviços da aplicação
+            builder.Services.AddHttpClient(); 
+            
+            // Serviço de autenticação
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<JwtService>();
+            builder.Services.AddScoped<PasswordService>();
+            
+            // Serviço de jogos Steam
+            builder.Services.AddScoped<SteamGameService>();
+
+            // 📚 Swagger
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             var app = builder.Build();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<DbContext>();
-                dbContext.Database.EnsureDeleted(); 
-                dbContext.Database.EnsureCreated();
-            }
-
-            // Configuração do pipeline de requisições
+            // 🌐 Configuração do pipeline HTTP
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            // Adicionar autorização
-            builder.Services.AddAuthorization();
-            
             app.UseHttpsRedirection();
-            
-            // Adicionar middleware de autenticação
             app.UseAuthentication();
             app.UseAuthorization();
-
-            // Mapear os controllers
             app.MapControllers();
-
             app.Run();
         }
     }
