@@ -59,13 +59,44 @@ namespace WebApplication1
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<JwtService>();
             builder.Services.AddScoped<PasswordService>();
+            builder.Services.AddScoped<UserService>();
             
             // Serviço de jogos Steam
             builder.Services.AddScoped<SteamGameService>();
 
             // 📚 Swagger
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new() { Title = "Dealy game", Version = "v1" });
+
+                // 🔐 Configura o esquema de segurança Bearer (JWT)
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Insira: Bearer {seu token JWT}"
+                });
+
+                // 🔑 Aplica o esquema de segurança globalmente a todas as rotas protegidas
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
             var app = builder.Build();
 

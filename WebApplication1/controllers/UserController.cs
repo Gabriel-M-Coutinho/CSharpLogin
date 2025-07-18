@@ -11,7 +11,7 @@ namespace WebApplication1.Controllers
     {
 
 
-        [Authorize]
+        [Authorize(Roles = nameof(ERole.ADMIN))]
         [HttpGet("test")]
         public ActionResult<string> TestRoute()
         {

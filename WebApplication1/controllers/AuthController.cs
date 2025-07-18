@@ -35,12 +35,8 @@ public class AuthController : ControllerBase
                 return BadRequest(new { message = "Email já está em uso" });
             }
 
-            var user = new User()
-            {
-                Email = model.Email,
-                Password = _passwordService.HashPassword(model.Password)
-            };
-
+            var user = new User(model.Email, _passwordService.HashPassword(model.Password),ERole.COMMON);
+            
             await _authService.RegisterAsync(user);
             return Ok(new { message = "Registro realizado com sucesso." });
         }

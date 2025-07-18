@@ -1,4 +1,5 @@
 
+using MongoDB.Driver;
 using WebApplication1.dtos;
 using WebApplication1.models;
 
@@ -6,25 +7,36 @@ namespace WebApplication1.services;
 
 public class UserService
 {
-    /*private readonly AppDbContext _dbContext;
-
-    public UserService(AppDbContext context)
+    private readonly IMongoCollection<User> _users;
+        
+    public UserService(IMongoDatabase database)
     {
-        _dbContext = context;
+        _users = database.GetCollection<User>("users");
     }
 
-    public async Task<User> CreateUserAsync(UserDTO dto)
+    public void DeleteUser(User user)
     {
-        var user = new User
-        {
-            Email = dto.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-        };
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+    
+        var update = Builders<User>.Update
+            .Set(u => u.DeletedAt, DateTime.UtcNow)
+            .Set(u => u.Status == UserStatus.INACTIVE,false); // supondo que exista esse campo
+    
+        _users.UpdateOne(filter, update);
+    }
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+    public void UpdateUser(User user)
+    {
+        
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+        
+    }
 
-        return user;
-    }*/
+
+    public void ForgotPassword(string email)
+    {
+        
+    }
+    
 
 }

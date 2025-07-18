@@ -1,8 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using WebApplication1.models.dailyguess.steam;
-using WebApplication1.services.steam;
 
 namespace WebApplication1.Controllers;
 [ApiController] 
@@ -16,8 +14,10 @@ public class SteamDailyController: ControllerBase
         _steamGameService = steamGameService;
     }
 
-
-
+    
+    /*
+     
+    */
     
  
 
